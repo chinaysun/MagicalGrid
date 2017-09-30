@@ -41,6 +41,9 @@ class ViewController: UIViewController {
         
     }
 
+    
+    var selectedView:UIView?
+    
     @objc func handlePan(gesture:UIPanGestureRecognizer){
         
         let location = gesture.location(in: view)
@@ -50,8 +53,42 @@ class ViewController: UIViewController {
         let j = Int(location.y / width)
         
         let key = "\(i)|\(j)"
-        let cellView = cells[key]
-        cellView?.backgroundColor = UIColor.white
+        
+        // optional binding
+        guard let cellView = cells[key] else { return }
+        
+        if selectedView != cellView
+        {
+            UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+                
+                self.selectedView?.layer.transform = CATransform3DIdentity
+                
+            }, completion: nil)
+        }
+        
+        selectedView = cellView
+        
+        
+        view.bringSubview(toFront: cellView)
+        
+        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+            
+            cellView.layer.transform = CATransform3DMakeScale(3, 3, 3)
+            
+            
+        }, completion: nil)
+        
+        
+        if gesture.state == .ended
+        {
+            UIView.animate(withDuration: 0.5, delay: 0.25, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: .curveEaseOut, animations: {
+                
+                self.selectedView?.layer.transform = CATransform3DIdentity
+                
+            }, completion: { (_) in
+                
+            })
+        }
         
         /*// inefficient when subviews is large amount
         for subview in view.subviews
